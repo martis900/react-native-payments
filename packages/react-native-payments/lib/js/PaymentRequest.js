@@ -315,14 +315,16 @@ export default class PaymentRequest {
     googleTransactionId: string,
     payerEmail: string,
     paymentDescription: string,
-    shippingAddress: Object,
+    shippingAddress?: Object,
   }) {
     const {
+      cardInfo,
       googleTransactionId,
       paymentDescription
     } = details;
 
     return {
+      cardInfo,
       googleTransactionId,
       paymentDescription,
       // On Android, the recommended flow is to have user's confirm prior to
@@ -336,11 +338,13 @@ export default class PaymentRequest {
   }
 
   _handleUserAccept(details: {
-    transactionIdentifier: string,
-    paymentData: string,
-    shippingAddress: Object,
-    payerEmail: string,
-    paymentToken?: string,
+    cardInfo?: Object,
+    googleTransactionId?: string,
+    transactionIdentifier?: string,
+    paymentData?: Object,
+    shippingAddress?: Object,
+    payerEmail?: string,
+    paymentToken: Object | string,
   }) {
     // On Android, we don't have `onShippingAddressChange` events, so we
     // set the shipping address when the user accepts.
