@@ -211,7 +211,7 @@ export default class PaymentRequest {
     const normalizedDetails = convertDetailAmountsToString(details);
 
     // Validate gateway config if present
-    if (IS_IOS && hasGatewayConfig(platformMethodData)) {
+    if (hasGatewayConfig(platformMethodData)) {
       validateGateway(
         getGatewayName(platformMethodData),
         NativePayments.supportedGateways
@@ -314,37 +314,26 @@ export default class PaymentRequest {
   _getPlatformDetailsAndroid(details: {
     googleTransactionId: string,
     payerEmail: string,
-    paymentDescription: string,
-    shippingAddress?: Object,
+    paymentToken: Object,
+    shippingAddress: Object,
   }) {
     const {
-      cardInfo,
       googleTransactionId,
-      paymentDescription
+      paymentToken,
     } = details;
 
     return {
-      cardInfo,
       googleTransactionId,
-      paymentDescription,
-      // On Android, the recommended flow is to have user's confirm prior to
-      // retrieving the full wallet.
-      getPaymentToken: () => NativePayments.getFullWalletAndroid(
-        googleTransactionId,
-        getPlatformMethodData(JSON.parse(this._serializedMethodData, Platform.OS)),
-        convertDetailAmountsToString(this._details)
-      )
+      paymentToken,
     };
   }
 
   _handleUserAccept(details: {
-    cardInfo?: Object,
-    googleTransactionId?: string,
-    transactionIdentifier?: string,
-    paymentData?: Object,
-    shippingAddress?: Object,
-    payerEmail?: string,
-    paymentToken: Object | string,
+    transactionIdentifier: string,
+    paymentData: string,
+    shippingAddress: Object,
+    payerEmail: string,
+    paymentToken?: string,
   }) {
     // On Android, we don't have `onShippingAddressChange` events, so we
     // set the shipping address when the user accepts.
@@ -473,5 +462,11 @@ export default class PaymentRequest {
       });
     });
   }
-}
 
+  // https://www.w3.org/TR/payment-request/#canmakepayment-method
+  canMakePayments(): Promise<boolean> {
+    return NativePayments.canMakePayments(
+      getPlatformMethodData(JSON.parse(this._serializedMethodData), Platform.OS)
+    );
+  }
+}
