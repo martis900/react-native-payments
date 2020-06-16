@@ -87,6 +87,9 @@ public class ReactNativePaymentsModule extends ReactContextBaseJavaModule implem
                                 paymentDetails.putString("payerEmail", maskedWallet.getEmail());
                                 paymentDetails.putMap("shippingAddress", shippingAddress);
                                 paymentDetails.putString("googleTransactionId", maskedWallet.getGoogleTransactionId());
+                                
+                                WritableNativeMap cardInfo = buildCardInfo(paymentData.getCardInfo());
+                                paymentDetails.putMap("cardInfo", cardInfo);
 
                                 sendEvent(reactContext, "NativePayments:onuseraccept", paymentDetails);
                             }
@@ -338,6 +341,21 @@ public class ReactNativePaymentsModule extends ReactContextBaseJavaModule implem
 
     // Google API Client
     // ---------------------------------------------------------------------------------------------
+    protected static WritableNativeMap buildCardInfo(CardInfo cardInfo) {
+
+        if (cardInfo == null) return null;
+
+
+        WritableNativeMap result = new WritableNativeMap();
+
+        result.putInt("cardClass", cardInfo.getCardClass());
+        result.putString("cardDescription", cardInfo.getCardDescription());
+        result.putString("cardDetails", cardInfo.getCardDetails());
+        result.putString("cardNetwork", cardInfo.getCardNetwork());
+
+        return result;
+    }
+    
     private void buildGoogleApiClient(Activity currentActivity, int environment) {
         mGoogleApiClient = new GoogleApiClient.Builder(currentActivity)
                 .addConnectionCallbacks(this)
